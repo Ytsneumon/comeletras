@@ -5,6 +5,9 @@
 
 static const char *bountyTexturePath = "resources/bounty.png";
 static const int bountyWidth = 50;
+static const float bountyMaxSpeed = 5.0f;
+static const float bountyAcceleration = .2f;
+static const float bountyMaxRotation = 20.0f;
 
 typedef struct Bounty {
   Rectangle bounds;
@@ -21,5 +24,7 @@ Bounty *createBounty(Vector2 initialPosition);
 void destroyBounty(Bounty *bounty);
 
 void drawBounty(Bounty *bounty);
+
+void processInputForBounty(Bounty *bounty);
 
 #endif

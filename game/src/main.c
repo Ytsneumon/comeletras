@@ -33,9 +33,6 @@ static const int screenHeight = 900;
 static const int headerHeight = 100;
 static const int letterWidth = 50;
 static const int letterHeight = 50;
-static const float bountyMaxSpeed = 5.0f;
-static const float bountyAcceleration = .2f;
-static const float bountyMaxRotation = 20.0f;
 
 static GameState gameState = {
     .currentLetterIndex = 0,
@@ -195,80 +192,7 @@ static void drawLeftLetters() {
 }
 
 static void processInput() {
-  if (IsKeyDown(KEY_RIGHT)) {
-    gameState.bounty->horizontalSpeed += bountyAcceleration;
-    if (gameState.bounty->horizontalSpeed > bountyMaxSpeed) {
-      gameState.bounty->horizontalSpeed = bountyMaxSpeed;
-    }
-    gameState.bounty->horizontalDirection = 1;
-    gameState.bounty->bounds.x += gameState.bounty->horizontalSpeed;
-  } else if (IsKeyDown(KEY_LEFT)) {
-    gameState.bounty->horizontalSpeed -= bountyAcceleration;
-    if (gameState.bounty->horizontalSpeed < -bountyMaxSpeed) {
-      gameState.bounty->horizontalSpeed = -bountyMaxSpeed;
-    }
-    gameState.bounty->horizontalDirection = -1;
-    gameState.bounty->bounds.x += gameState.bounty->horizontalSpeed;
-  } else if (IsKeyUp(KEY_RIGHT) && !IsKeyDown(KEY_LEFT) && gameState.bounty->horizontalSpeed > 0) {
-    gameState.bounty->horizontalSpeed -= bountyAcceleration;
-    if (gameState.bounty->horizontalSpeed < 0) {
-      gameState.bounty->horizontalSpeed = 0;
-    }
-    gameState.bounty->bounds.x += gameState.bounty->horizontalSpeed;
-  } else if (IsKeyUp(KEY_LEFT) && !IsKeyDown(KEY_RIGHT) && gameState.bounty->horizontalSpeed < 0) {
-    gameState.bounty->horizontalSpeed += bountyAcceleration;
-    if (gameState.bounty->horizontalSpeed > 0) {
-      gameState.bounty->horizontalSpeed = 0;
-    }
-    gameState.bounty->bounds.x += gameState.bounty->horizontalSpeed;
-  }
-
-  if (IsKeyDown(KEY_DOWN)) {
-    gameState.bounty->verticalSpeed += bountyAcceleration;
-    if (gameState.bounty->verticalSpeed > bountyMaxSpeed) {
-      gameState.bounty->verticalSpeed = bountyMaxSpeed;
-    }
-    gameState.bounty->bounds.y += gameState.bounty->verticalSpeed;
-  } else if (IsKeyDown(KEY_UP)) {
-    gameState.bounty->verticalSpeed -= bountyAcceleration;
-    if (gameState.bounty->verticalSpeed < -bountyMaxSpeed) {
-      gameState.bounty->verticalSpeed = -bountyMaxSpeed;
-    }
-    gameState.bounty->bounds.y += gameState.bounty->verticalSpeed;
-  } else if (IsKeyUp(KEY_DOWN) && !IsKeyDown(KEY_UP) && gameState.bounty->verticalSpeed > 0) {
-    gameState.bounty->verticalSpeed -= bountyAcceleration;
-    if (gameState.bounty->verticalSpeed < 0) {
-      gameState.bounty->verticalSpeed = 0;
-    }
-    gameState.bounty->bounds.y += gameState.bounty->verticalSpeed;
-  } else if (IsKeyUp(KEY_UP) && !IsKeyDown(KEY_DOWN) && gameState.bounty->verticalSpeed < 0) {
-    gameState.bounty->verticalSpeed += bountyAcceleration;
-    if (gameState.bounty->verticalSpeed > 0) {
-      gameState.bounty->verticalSpeed = 0;
-    }
-    gameState.bounty->bounds.y += gameState.bounty->verticalSpeed;
-  }
-
-  if (gameState.bounty->verticalSpeed != 0) {
-    gameState.bounty->rotation = gameState.bounty->horizontalDirection * Remap(gameState.bounty->verticalSpeed, -bountyMaxSpeed, bountyMaxSpeed, -bountyMaxRotation, bountyMaxRotation);
-  } else {
-    gameState.bounty->rotation = 0;
-  }
-
-  if (gameState.bounty->rotation > bountyMaxRotation) {
-    gameState.bounty->rotation = bountyMaxRotation;
-  } else if (gameState.bounty->rotation < -bountyMaxRotation) {
-    gameState.bounty->rotation = -bountyMaxRotation;
-  }
-
-  if (gameState.bounty->bounds.x < gameState.bounty->bounds.width / 2)
-    gameState.bounty->bounds.x = gameState.bounty->bounds.width / 2;
-  if (gameState.bounty->bounds.x > GetScreenWidth() - gameState.bounty->bounds.width / 2)
-    gameState.bounty->bounds.x = GetScreenWidth() - gameState.bounty->bounds.width / 2;
-  if (gameState.bounty->bounds.y < headerHeight + gameState.bounty->bounds.height / 2)
-    gameState.bounty->bounds.y = headerHeight + gameState.bounty->bounds.height / 2;
-  if (gameState.bounty->bounds.y > GetScreenHeight() - gameState.bounty->bounds.height / 2)
-    gameState.bounty->bounds.y = GetScreenHeight() - gameState.bounty->bounds.height / 2;
+  processInputForBounty(gameState.bounty);
 
   // Konami codes
   if (IsKeyPressed(KEY_SPACE)) {
