@@ -10,33 +10,33 @@ endif
 
 ifeq ($(config),debug_x64)
   raylib_config = debug_x64
-  comeletras_config = debug_x64
+  letter_catcher_config = debug_x64
 
 else ifeq ($(config),debug_x86)
   raylib_config = debug_x86
-  comeletras_config = debug_x86
+  letter_catcher_config = debug_x86
 
 else ifeq ($(config),debug_arm64)
   raylib_config = debug_arm64
-  comeletras_config = debug_arm64
+  letter_catcher_config = debug_arm64
 
 else ifeq ($(config),release_x64)
   raylib_config = release_x64
-  comeletras_config = release_x64
+  letter_catcher_config = release_x64
 
 else ifeq ($(config),release_x86)
   raylib_config = release_x86
-  comeletras_config = release_x86
+  letter_catcher_config = release_x86
 
 else ifeq ($(config),release_arm64)
   raylib_config = release_arm64
-  comeletras_config = release_arm64
+  letter_catcher_config = release_arm64
 
 else
   $(error "invalid configuration $(config)")
 endif
 
-PROJECTS := raylib comeletras
+PROJECTS := raylib letter-catcher
 
 .PHONY: all clean help $(PROJECTS) 
 
@@ -48,15 +48,15 @@ ifneq (,$(raylib_config))
 	@${MAKE} --no-print-directory -C _build -f raylib.make config=$(raylib_config)
 endif
 
-comeletras: raylib
-ifneq (,$(comeletras_config))
-	@echo "==== Building comeletras ($(comeletras_config)) ===="
-	@${MAKE} --no-print-directory -C _build -f comeletras.make config=$(comeletras_config)
+letter-catcher: raylib
+ifneq (,$(letter_catcher_config))
+	@echo "==== Building letter-catcher ($(letter_catcher_config)) ===="
+	@${MAKE} --no-print-directory -C _build -f letter-catcher.make config=$(letter_catcher_config)
 endif
 
 clean:
 	@${MAKE} --no-print-directory -C _build -f raylib.make clean
-	@${MAKE} --no-print-directory -C _build -f comeletras.make clean
+	@${MAKE} --no-print-directory -C _build -f letter-catcher.make clean
 
 help:
 	@echo "Usage: make [config=name] [target]"
@@ -73,6 +73,6 @@ help:
 	@echo "   all (default)"
 	@echo "   clean"
 	@echo "   raylib"
-	@echo "   comeletras"
+	@echo "   letter-catcher"
 	@echo ""
 	@echo "For more information, see https://github.com/premake/premake-core/wiki"
