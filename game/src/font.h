@@ -1,5 +1,5 @@
-#ifndef COMELETRAS_FONT
-#define COMELETRAS_FONT
+#ifndef LETTER_CATCHER_FONT
+#define LETTER_CATCHER_FONT
 
 #include "raylib.h"
 

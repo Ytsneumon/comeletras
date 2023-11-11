@@ -1,5 +1,5 @@
-#ifndef COMELETRAS_BOUNTY
-#define COMELETRAS_BOUNTY
+#ifndef LETTER_CATCHER_BOUNTY
+#define LETTER_CATCHER_BOUNTY
 
 #include "raylib.h"
 
@@ -17,5 +17,9 @@ typedef struct Bounty {
 } Bounty;
 
 Bounty *createBounty(Vector2 initialPosition);
+
+void destroyBounty(Bounty *bounty);
+
+void drawBounty(Bounty *bounty);
 
 #endif

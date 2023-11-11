@@ -1,3 +1,4 @@
+#include "bounty/bounty.h"
 #include "font.h"
 #include "gameState.h"
 #include "raylib.h"
@@ -16,15 +17,14 @@ static void UpdateDrawFrame(void);
 static void initiliaze();
 static void initializeWords();
 static void initializeCurrentWord();
-static void initializeBounty();
 static void processInput();
 static void interactions();
 static void drawBackground();
 static void drawCurrentWord();
 static void drawLeftLetters();
-static void drawBounty();
 static void printLettersPositions();
 const char *getCurrentWord();
+static Vector2 getInitialPoint();
 
 // Constants
 static const int screenWidth = 900;
@@ -33,7 +33,6 @@ static const int screenHeight = 900;
 static const int headerHeight = 100;
 static const int letterWidth = 50;
 static const int letterHeight = 50;
-static const int bountyWidth = 50;
 static const float bountyMaxSpeed = 5.0f;
 static const float bountyAcceleration = .2f;
 static const float bountyMaxRotation = 20.0f;
@@ -41,11 +40,6 @@ static const float bountyMaxRotation = 20.0f;
 static GameState gameState = {
     .currentLetterIndex = 0,
     .currentWordIndex = 0,
-    .bountyHorizontalDirection = 1,
-    .bountyVerticalDirection = 0,
-    .bountyHorizontalSpeed = 0.0f,
-    .bountyVerticalSpeed = 0.0f,
-    .bountyRotation = 0.0f,
     .currentFrame = 0,
     .framesCounter = 0,
     .framesSpeed = 8,
@@ -93,12 +87,12 @@ int main(void) {
 // TODO: Effects and sound when a letter is catched or the word/game is finished
 
 static void initiliaze() {
-  InitWindow(screenWidth, screenHeight, "Comeletras");
+  InitWindow(screenWidth, screenHeight, "Letter Catcher");
   SetTargetFPS(60);
   initializeFont();
   initializeWords();
   initializeCurrentWord();
-  initializeBounty();
+  gameState.bounty = createBounty(getInitialPoint());
   backgroundTexture = LoadTexture("resources/clouds_background.png");
   markerSprite = LoadTexture("resources/marker_sprite.png");
   dragonSprite = LoadTexture("resources/ViridianDrakeIdleSide.png");
@@ -113,7 +107,7 @@ static void UpdateDrawFrame(void) {
   drawBackground();
   drawCurrentWord();
   drawLeftLetters();
-  drawBounty();
+  drawBounty(gameState.bounty);
 
   EndDrawing();
 }
@@ -148,14 +142,6 @@ static void initializeCurrentWord() {
     gameState.lettersPositions = addElement(gameState.lettersPositions, letterPosition);
   }
   free(positions);
-}
-
-static void initializeBounty() {
-  bountyTexture = LoadTexture("resources/bounty.png");
-  gameState.bounty.x = GetScreenWidth() / 2;
-  gameState.bounty.y = (GetScreenHeight() - headerHeight) / 2;
-  gameState.bounty.width = bountyWidth;
-  gameState.bounty.height = bountyWidth;
 }
 
 static void drawCurrentWord() {
@@ -208,90 +194,81 @@ static void drawLeftLetters() {
   }
 }
 
-static void drawBounty() {
-  Rectangle source = {0, 0, -gameState.bountyHorizontalDirection * bountyTexture.width, bountyTexture.height};
-  Rectangle destiny = {gameState.bounty.x, gameState.bounty.y, gameState.bounty.width, gameState.bounty.height};
-  Vector2 origin = {gameState.bounty.width / 2, gameState.bounty.height / 2};
-  DrawTexturePro(bountyTexture, source, destiny, origin, gameState.bountyRotation, WHITE);
-  // Rectangle bountyHitbox = {bounty.x - bounty.width / 2, bounty.y - bounty.height / 2, bounty.width, bounty.height};
-  //  DrawRectangleLinesEx(bountyHitbox, 1.0f, RED);
-}
-
 static void processInput() {
   if (IsKeyDown(KEY_RIGHT)) {
-    gameState.bountyHorizontalSpeed += bountyAcceleration;
-    if (gameState.bountyHorizontalSpeed > bountyMaxSpeed) {
-      gameState.bountyHorizontalSpeed = bountyMaxSpeed;
+    gameState.bounty->horizontalSpeed += bountyAcceleration;
+    if (gameState.bounty->horizontalSpeed > bountyMaxSpeed) {
+      gameState.bounty->horizontalSpeed = bountyMaxSpeed;
     }
-    gameState.bountyHorizontalDirection = 1;
-    gameState.bounty.x += gameState.bountyHorizontalSpeed;
+    gameState.bounty->horizontalDirection = 1;
+    gameState.bounty->bounds.x += gameState.bounty->horizontalSpeed;
   } else if (IsKeyDown(KEY_LEFT)) {
-    gameState.bountyHorizontalSpeed -= bountyAcceleration;
-    if (gameState.bountyHorizontalSpeed < -bountyMaxSpeed) {
-      gameState.bountyHorizontalSpeed = -bountyMaxSpeed;
+    gameState.bounty->horizontalSpeed -= bountyAcceleration;
+    if (gameState.bounty->horizontalSpeed < -bountyMaxSpeed) {
+      gameState.bounty->horizontalSpeed = -bountyMaxSpeed;
     }
-    gameState.bountyHorizontalDirection = -1;
-    gameState.bounty.x += gameState.bountyHorizontalSpeed;
-  } else if (IsKeyUp(KEY_RIGHT) && !IsKeyDown(KEY_LEFT) && gameState.bountyHorizontalSpeed > 0) {
-    gameState.bountyHorizontalSpeed -= bountyAcceleration;
-    if (gameState.bountyHorizontalSpeed < 0) {
-      gameState.bountyHorizontalSpeed = 0;
+    gameState.bounty->horizontalDirection = -1;
+    gameState.bounty->bounds.x += gameState.bounty->horizontalSpeed;
+  } else if (IsKeyUp(KEY_RIGHT) && !IsKeyDown(KEY_LEFT) && gameState.bounty->horizontalSpeed > 0) {
+    gameState.bounty->horizontalSpeed -= bountyAcceleration;
+    if (gameState.bounty->horizontalSpeed < 0) {
+      gameState.bounty->horizontalSpeed = 0;
     }
-    gameState.bounty.x += gameState.bountyHorizontalSpeed;
-  } else if (IsKeyUp(KEY_LEFT) && !IsKeyDown(KEY_RIGHT) && gameState.bountyHorizontalSpeed < 0) {
-    gameState.bountyHorizontalSpeed += bountyAcceleration;
-    if (gameState.bountyHorizontalSpeed > 0) {
-      gameState.bountyHorizontalSpeed = 0;
+    gameState.bounty->bounds.x += gameState.bounty->horizontalSpeed;
+  } else if (IsKeyUp(KEY_LEFT) && !IsKeyDown(KEY_RIGHT) && gameState.bounty->horizontalSpeed < 0) {
+    gameState.bounty->horizontalSpeed += bountyAcceleration;
+    if (gameState.bounty->horizontalSpeed > 0) {
+      gameState.bounty->horizontalSpeed = 0;
     }
-    gameState.bounty.x += gameState.bountyHorizontalSpeed;
+    gameState.bounty->bounds.x += gameState.bounty->horizontalSpeed;
   }
 
   if (IsKeyDown(KEY_DOWN)) {
-    gameState.bountyVerticalSpeed += bountyAcceleration;
-    if (gameState.bountyVerticalSpeed > bountyMaxSpeed) {
-      gameState.bountyVerticalSpeed = bountyMaxSpeed;
+    gameState.bounty->verticalSpeed += bountyAcceleration;
+    if (gameState.bounty->verticalSpeed > bountyMaxSpeed) {
+      gameState.bounty->verticalSpeed = bountyMaxSpeed;
     }
-    gameState.bounty.y += gameState.bountyVerticalSpeed;
+    gameState.bounty->bounds.y += gameState.bounty->verticalSpeed;
   } else if (IsKeyDown(KEY_UP)) {
-    gameState.bountyVerticalSpeed -= bountyAcceleration;
-    if (gameState.bountyVerticalSpeed < -bountyMaxSpeed) {
-      gameState.bountyVerticalSpeed = -bountyMaxSpeed;
+    gameState.bounty->verticalSpeed -= bountyAcceleration;
+    if (gameState.bounty->verticalSpeed < -bountyMaxSpeed) {
+      gameState.bounty->verticalSpeed = -bountyMaxSpeed;
     }
-    gameState.bounty.y += gameState.bountyVerticalSpeed;
-  } else if (IsKeyUp(KEY_DOWN) && !IsKeyDown(KEY_UP) && gameState.bountyVerticalSpeed > 0) {
-    gameState.bountyVerticalSpeed -= bountyAcceleration;
-    if (gameState.bountyVerticalSpeed < 0) {
-      gameState.bountyVerticalSpeed = 0;
+    gameState.bounty->bounds.y += gameState.bounty->verticalSpeed;
+  } else if (IsKeyUp(KEY_DOWN) && !IsKeyDown(KEY_UP) && gameState.bounty->verticalSpeed > 0) {
+    gameState.bounty->verticalSpeed -= bountyAcceleration;
+    if (gameState.bounty->verticalSpeed < 0) {
+      gameState.bounty->verticalSpeed = 0;
     }
-    gameState.bounty.y += gameState.bountyVerticalSpeed;
-  } else if (IsKeyUp(KEY_UP) && !IsKeyDown(KEY_DOWN) && gameState.bountyVerticalSpeed < 0) {
-    gameState.bountyVerticalSpeed += bountyAcceleration;
-    if (gameState.bountyVerticalSpeed > 0) {
-      gameState.bountyVerticalSpeed = 0;
+    gameState.bounty->bounds.y += gameState.bounty->verticalSpeed;
+  } else if (IsKeyUp(KEY_UP) && !IsKeyDown(KEY_DOWN) && gameState.bounty->verticalSpeed < 0) {
+    gameState.bounty->verticalSpeed += bountyAcceleration;
+    if (gameState.bounty->verticalSpeed > 0) {
+      gameState.bounty->verticalSpeed = 0;
     }
-    gameState.bounty.y += gameState.bountyVerticalSpeed;
+    gameState.bounty->bounds.y += gameState.bounty->verticalSpeed;
   }
 
-  if (gameState.bountyVerticalSpeed != 0) {
-    gameState.bountyRotation = gameState.bountyHorizontalDirection * Remap(gameState.bountyVerticalSpeed, -bountyMaxSpeed, bountyMaxSpeed, -bountyMaxRotation, bountyMaxRotation);
+  if (gameState.bounty->verticalSpeed != 0) {
+    gameState.bounty->rotation = gameState.bounty->horizontalDirection * Remap(gameState.bounty->verticalSpeed, -bountyMaxSpeed, bountyMaxSpeed, -bountyMaxRotation, bountyMaxRotation);
   } else {
-    gameState.bountyRotation = 0;
+    gameState.bounty->rotation = 0;
   }
 
-  if (gameState.bountyRotation > bountyMaxRotation) {
-    gameState.bountyRotation = bountyMaxRotation;
-  } else if (gameState.bountyRotation < -bountyMaxRotation) {
-    gameState.bountyRotation = -bountyMaxRotation;
+  if (gameState.bounty->rotation > bountyMaxRotation) {
+    gameState.bounty->rotation = bountyMaxRotation;
+  } else if (gameState.bounty->rotation < -bountyMaxRotation) {
+    gameState.bounty->rotation = -bountyMaxRotation;
   }
 
-  if (gameState.bounty.x < gameState.bounty.width / 2)
-    gameState.bounty.x = gameState.bounty.width / 2;
-  if (gameState.bounty.x > GetScreenWidth() - gameState.bounty.width / 2)
-    gameState.bounty.x = GetScreenWidth() - gameState.bounty.width / 2;
-  if (gameState.bounty.y < headerHeight + gameState.bounty.height / 2)
-    gameState.bounty.y = headerHeight + gameState.bounty.height / 2;
-  if (gameState.bounty.y > GetScreenHeight() - gameState.bounty.height / 2)
-    gameState.bounty.y = GetScreenHeight() - gameState.bounty.height / 2;
+  if (gameState.bounty->bounds.x < gameState.bounty->bounds.width / 2)
+    gameState.bounty->bounds.x = gameState.bounty->bounds.width / 2;
+  if (gameState.bounty->bounds.x > GetScreenWidth() - gameState.bounty->bounds.width / 2)
+    gameState.bounty->bounds.x = GetScreenWidth() - gameState.bounty->bounds.width / 2;
+  if (gameState.bounty->bounds.y < headerHeight + gameState.bounty->bounds.height / 2)
+    gameState.bounty->bounds.y = headerHeight + gameState.bounty->bounds.height / 2;
+  if (gameState.bounty->bounds.y > GetScreenHeight() - gameState.bounty->bounds.height / 2)
+    gameState.bounty->bounds.y = GetScreenHeight() - gameState.bounty->bounds.height / 2;
 
   // Konami codes
   if (IsKeyPressed(KEY_SPACE)) {
@@ -306,7 +283,7 @@ static void interactions() {
   ListNode *iterator = gameState.lettersPositions;
   int i = 0;
   bool catched = false;
-  Rectangle bountyHitbox = {gameState.bounty.x - gameState.bounty.width / 2, gameState.bounty.y - gameState.bounty.height / 2, gameState.bounty.width, gameState.bounty.height};
+  Rectangle bountyHitbox = {gameState.bounty->bounds.x - gameState.bounty->bounds.width / 2, gameState.bounty->bounds.y - gameState.bounty->bounds.height / 2, gameState.bounty->bounds.width, gameState.bounty->bounds.height};
   while (!catched && iterator != NULL) {
     LetterPosition *letterPosition = (LetterPosition *)iterator->val;
     if (letterPosition->letter == currentWord[gameState.currentLetterIndex] &&
@@ -341,4 +318,8 @@ const char *getCurrentWord() {
 
 static void drawBackground() {
   DrawTexture(backgroundTexture, 0, 0, WHITE);
+}
+
+static Vector2 getInitialPoint() {
+  return (Vector2){GetScreenWidth() / 2, (GetScreenHeight() - headerHeight) / 2};
 }

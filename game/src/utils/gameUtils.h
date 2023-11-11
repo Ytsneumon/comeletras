@@ -1,5 +1,5 @@
-#ifndef COMELETRAS_GAME_UTILS
-#define COMELETRAS_GAME_UTILS
+#ifndef LETTER_CATCHER_GAME_UTILS
+#define LETTER_CATCHER_GAME_UTILS
 
 #include "raylib.h"
 
