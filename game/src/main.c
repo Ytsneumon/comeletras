@@ -46,7 +46,6 @@ static GameState gameState = {
 };
 
 // Textures
-Texture2D bountyTexture;
 Texture2D ribbonTexture;
 Texture2D backgroundTexture;
 Texture2D markerSprite;
@@ -69,7 +68,8 @@ int main(void) {
     UpdateDrawFrame();
   }
 
-  UnloadTexture(bountyTexture);
+  destroyBounty(gameState.bounty);
+
   UnloadTexture(ribbonTexture);
   UnloadTexture(backgroundTexture);
   UnloadTexture(markerSprite);
