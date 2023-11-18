@@ -10,9 +10,6 @@ typedef struct GameState {
   ListNode *lettersPositions;
   int *wordIndexes;
   int currentWordIndex;
-  int currentFrame;
-  int framesCounter;
-  int framesSpeed;
   Bounty *bounty;
 } GameState;
 

@@ -1,5 +1,10 @@
+#ifndef LETTER_CATCHER_WORDS
+#define LETTER_CATCHER_WORDS
+
+#include "gameState.h"
+
 static const int NUMBER_OF_WORDS = 14;
-const char *words[] = {
+static char *words[] = {
     "NINJAGO",
     "LLOYD",
     "KAI",
@@ -14,3 +19,7 @@ const char *words[] = {
     "PELICULA",
     "ABUNOCHI",
     "TORTITAS"};
+
+void initializeWords(GameState *gameState);
+
+#endif

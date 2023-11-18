@@ -10,6 +10,7 @@ void drawGrid();
 void positionRandomly2D(Vector2 *positions, int nElements, int elementWidth, int elementHeight, Rectangle map, int xOffset, int yOffset);
 
 void printRectangleOut(Rectangle rectangle);
+
 void printVector2Out(Vector2 vector);
 
 #endif
