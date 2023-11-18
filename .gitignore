@@ -57,8 +57,5 @@ dkms.conf
 # raylib
 raylib-master
 
-# project settings
-.vscode/*
-
 # Excluded files from ignore
 !premake5.exe

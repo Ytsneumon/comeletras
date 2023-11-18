@@ -1,0 +1,13 @@
+{
+  "files.associations": {
+    "commonutils.h": "c",
+    "words.h": "c",
+    "gamestate.h": "c",
+    "types.h": "c",
+    "gameutils.h": "c",
+    "linkedlist.h": "c",
+    "main.h": "c",
+    "assetsdata.h": "c",
+    "sprite.h": "c"
+  }
+}
