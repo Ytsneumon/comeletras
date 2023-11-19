@@ -15,4 +15,8 @@ ListNode *removeElementAt(ListNode *list, int index);
 
 void *getElementAt(ListNode *list, int index);
 
+void clearList(ListNode **list);
+
+int listLength(ListNode *list);
+
 #endif

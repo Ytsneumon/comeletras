@@ -28,5 +28,6 @@ void drawLeftLetters();
 void printLettersPositions();
 Vector2 getInitialPoint();
 char *getCurrentWord();
+void initializeLettersPositions(GameState *gameState, Vector2 *positions, char *letters, int length);
 
 #endif

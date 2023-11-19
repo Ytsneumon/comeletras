@@ -62,3 +62,20 @@ void *getElementAt(ListNode *list, int index) {
     return NULL;
   }
 }
+
+void clearList(ListNode **list) {
+  while (*list != NULL) {
+    *list = removeElementAt(*list, 0);
+  }
+  *list = NULL;
+}
+
+int listLength(ListNode *list) {
+  int counter = 0;
+  ListNode *iterator = list;
+  while (iterator != NULL) {
+    counter++;
+    iterator = iterator->next;
+  }
+  return counter;
+}

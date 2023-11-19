@@ -42,6 +42,7 @@ int main(void) {
 
 void initiliaze() {
   gameState.currentWordIndex = 0;
+  gameState.lettersPositions = NULL;
   InitWindow(screenWidth, screenHeight, "Letter Catcher");
   SetTargetFPS(60);
   initializeFont();
@@ -70,20 +71,24 @@ void UpdateDrawFrame(void) {
 
 void initializeCurrentWord() {
   gameState.currentLetterIndex = 0;
-  const char *currentWord = getCurrentWord();
+  char *currentWord = getCurrentWord();
   int currentWordLength = strlen(currentWord);
   Vector2 *positions = malloc(currentWordLength * sizeof(Vector2));
-  Rectangle map = {0, headerHeight, GetScreenWidth(), GetScreenHeight() - headerHeight};
-  positionRandomly2D(positions, currentWordLength, letterWidth, letterHeight, map, 11, 5);
-  gameState.lettersPositions = NULL;
-  for (int i = 0; i < currentWordLength; i++) {
+  Rectangle mapBoundaries = {0, headerHeight, GetScreenWidth(), GetScreenHeight() - headerHeight};
+  positionRandomly2D(positions, currentWordLength, letterWidth, letterHeight, mapBoundaries, 11, 5);
+  initializeLettersPositions(&gameState, positions, currentWord, currentWordLength);
+  free(positions);
+}
+
+void initializeLettersPositions(GameState *gameState, Vector2 *positions, char *letters, int length) {
+  clearList(&gameState->lettersPositions);
+  for (int i = 0; i < length; i++) {
     LetterPosition *letterPosition = malloc(sizeof(LetterPosition));
     letterPosition->position = (Rectangle){positions[i].x, positions[i].y, 50, 50};
     letterPosition->catched = false;
-    letterPosition->letter = currentWord[i];
-    gameState.lettersPositions = addElement(gameState.lettersPositions, letterPosition);
+    letterPosition->letter = letters[i];
+    gameState->lettersPositions = addElement(gameState->lettersPositions, letterPosition);
   }
-  free(positions);
 }
 
 void drawCurrentWord() {
