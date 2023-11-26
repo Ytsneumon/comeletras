@@ -1,5 +1,6 @@
 #include "bounty.h"
 #include "raymath.h"
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -38,58 +39,50 @@ void drawBounty(Bounty *bounty) {
   //  DrawRectangleLinesEx(bountyHitbox, 1.0f, RED);
 }
 
+void clampBountyPosition(Bounty *bounty) {
+  float clampedValue = Clamp(bounty->bounds.x, bounty->bounds.width / 2, GetScreenWidth() - bounty->bounds.width / 2);
+  if (clampedValue != bounty->bounds.x) {
+    bounty->bounds.x = clampedValue;
+    bounty->horizontalSpeed = 0.0f;
+  }
+  clampedValue = Clamp(bounty->bounds.y, headerHeight + bounty->bounds.height / 2, GetScreenHeight() - bounty->bounds.height / 2);
+  if (clampedValue != bounty->bounds.y) {
+    bounty->bounds.y = clampedValue;
+    bounty->verticalSpeed = 0.0f;
+  }
+}
+
 void processInputForBounty(Bounty *bounty) {
+  clock_t now = clock();
+  double elapsedTime = ((double)(now - bounty->lastRender)) / CLOCKS_PER_SEC;
+  bounty->lastRender = now;
   if (IsKeyDown(KEY_RIGHT)) {
-    bounty->horizontalSpeed += bountyAcceleration;
-    if (bounty->horizontalSpeed > bountyMaxSpeed) {
-      bounty->horizontalSpeed = bountyMaxSpeed;
-    }
+    bounty->horizontalSpeed = Clamp(bounty->horizontalSpeed + bountyAcceleration * elapsedTime, -bountyMaxSpeed, bountyMaxSpeed);
     bounty->horizontalDirection = 1;
     bounty->bounds.x += bounty->horizontalSpeed;
   } else if (IsKeyDown(KEY_LEFT)) {
-    bounty->horizontalSpeed -= bountyAcceleration;
-    if (bounty->horizontalSpeed < -bountyMaxSpeed) {
-      bounty->horizontalSpeed = -bountyMaxSpeed;
-    }
+    bounty->horizontalSpeed = Clamp(bounty->horizontalSpeed - bountyAcceleration * elapsedTime, -bountyMaxSpeed, bountyMaxSpeed);
     bounty->horizontalDirection = -1;
     bounty->bounds.x += bounty->horizontalSpeed;
   } else if (IsKeyUp(KEY_RIGHT) && !IsKeyDown(KEY_LEFT) && bounty->horizontalSpeed > 0) {
-    bounty->horizontalSpeed -= bountyAcceleration;
-    if (bounty->horizontalSpeed < 0) {
-      bounty->horizontalSpeed = 0;
-    }
+    bounty->horizontalSpeed = Clamp(bounty->horizontalSpeed - bountyAcceleration * elapsedTime, 0.0f, bountyMaxSpeed);
     bounty->bounds.x += bounty->horizontalSpeed;
   } else if (IsKeyUp(KEY_LEFT) && !IsKeyDown(KEY_RIGHT) && bounty->horizontalSpeed < 0) {
-    bounty->horizontalSpeed += bountyAcceleration;
-    if (bounty->horizontalSpeed > 0) {
-      bounty->horizontalSpeed = 0;
-    }
+    bounty->horizontalSpeed = Clamp(bounty->horizontalSpeed + bountyAcceleration * elapsedTime, -bountyMaxSpeed, 0.0f);
     bounty->bounds.x += bounty->horizontalSpeed;
   }
 
   if (IsKeyDown(KEY_DOWN)) {
-    bounty->verticalSpeed += bountyAcceleration;
-    if (bounty->verticalSpeed > bountyMaxSpeed) {
-      bounty->verticalSpeed = bountyMaxSpeed;
-    }
+    bounty->verticalSpeed = Clamp(bounty->verticalSpeed + bountyAcceleration * elapsedTime, -bountyMaxSpeed, bountyMaxSpeed);
     bounty->bounds.y += bounty->verticalSpeed;
   } else if (IsKeyDown(KEY_UP)) {
-    bounty->verticalSpeed -= bountyAcceleration;
-    if (bounty->verticalSpeed < -bountyMaxSpeed) {
-      bounty->verticalSpeed = -bountyMaxSpeed;
-    }
+    bounty->verticalSpeed = Clamp(bounty->verticalSpeed - bountyAcceleration * elapsedTime, -bountyMaxSpeed, bountyMaxSpeed);
     bounty->bounds.y += bounty->verticalSpeed;
   } else if (IsKeyUp(KEY_DOWN) && !IsKeyDown(KEY_UP) && bounty->verticalSpeed > 0) {
-    bounty->verticalSpeed -= bountyAcceleration;
-    if (bounty->verticalSpeed < 0) {
-      bounty->verticalSpeed = 0;
-    }
+    bounty->verticalSpeed = Clamp(bounty->verticalSpeed - bountyAcceleration * elapsedTime, 0.0f, bountyMaxSpeed);
     bounty->bounds.y += bounty->verticalSpeed;
   } else if (IsKeyUp(KEY_UP) && !IsKeyDown(KEY_DOWN) && bounty->verticalSpeed < 0) {
-    bounty->verticalSpeed += bountyAcceleration;
-    if (bounty->verticalSpeed > 0) {
-      bounty->verticalSpeed = 0;
-    }
+    bounty->verticalSpeed = Clamp(bounty->verticalSpeed + bountyAcceleration * elapsedTime, -bountyMaxSpeed, 0.0f);
     bounty->bounds.y += bounty->verticalSpeed;
   }
 
@@ -105,12 +98,5 @@ void processInputForBounty(Bounty *bounty) {
     bounty->rotation = -bountyMaxRotation;
   }
 
-  if (bounty->bounds.x < bounty->bounds.width / 2)
-    bounty->bounds.x = bounty->bounds.width / 2;
-  if (bounty->bounds.x > GetScreenWidth() - bounty->bounds.width / 2)
-    bounty->bounds.x = GetScreenWidth() - bounty->bounds.width / 2;
-  if (bounty->bounds.y < headerHeight + bounty->bounds.height / 2)
-    bounty->bounds.y = headerHeight + bounty->bounds.height / 2;
-  if (bounty->bounds.y > GetScreenHeight() - bounty->bounds.height / 2)
-    bounty->bounds.y = GetScreenHeight() - bounty->bounds.height / 2;
+  clampBountyPosition(bounty);
 }

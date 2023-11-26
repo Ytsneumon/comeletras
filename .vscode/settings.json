@@ -8,6 +8,7 @@
     "linkedlist.h": "c",
     "main.h": "c",
     "assetsdata.h": "c",
-    "sprite.h": "c"
+    "sprite.h": "c",
+    "functional": "c"
   }
 }
