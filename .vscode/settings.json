@@ -9,6 +9,7 @@
     "main.h": "c",
     "assetsdata.h": "c",
     "sprite.h": "c",
-    "functional": "c"
+    "functional": "c",
+    "string.h": "c"
   }
 }

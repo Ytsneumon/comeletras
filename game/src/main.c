@@ -15,7 +15,6 @@ Texture2D ribbonTexture;
 Texture2D backgroundTexture;
 
 Sprite2D *markerSprite;
-Sprite2D *dragonSprite;
 
 int main(void) {
   initiliaze();
@@ -27,7 +26,9 @@ int main(void) {
 
   destroyBounty(gameState.bounty);
   destroyAsset(markerSprite);
-  destroyAsset(dragonSprite);
+  for (int i = 0; i < N_DRAGONS; i++) {
+    destroyAsset(dragonSprites[i]);
+  }
 
   UnloadTexture(ribbonTexture);
   UnloadTexture(backgroundTexture);
@@ -37,9 +38,6 @@ int main(void) {
   return 0;
 }
 
-// TODO: Generalize movements and move it to a separate file
-// TODO: Effects and sound when a letter is catched or the word/game is finished
-
 void initiliaze() {
   gameState.currentWordIndex = 0;
   gameState.lettersPositions = NULL;
@@ -47,12 +45,14 @@ void initiliaze() {
   SetTargetFPS(60);
   initializeFont();
   initializeWords(&gameState);
-  initializeCurrentWord();
   gameState.bounty = createBounty(getInitialPoint());
   ribbonTexture = LoadTexture("resources/ribbons.png");
   backgroundTexture = LoadTexture("resources/clouds_background.png");
-  dragonSprite = initializeDragon();
   markerSprite = initializeMarker();
+  for (int i = 0; i < N_DRAGONS; i++) {
+    dragonSprites[i] = initializeDragon(i);
+  }
+  initializeCurrentWord();
 }
 
 void UpdateDrawFrame(void) {
@@ -81,12 +81,14 @@ void initializeCurrentWord() {
 }
 
 void initializeLettersPositions(GameState *gameState, Vector2 *positions, char *letters, int length) {
+  ListNode *iterator = gameState->lettersPositions;
   clearList(&gameState->lettersPositions);
   for (int i = 0; i < length; i++) {
     LetterPosition *letterPosition = malloc(sizeof(LetterPosition));
     letterPosition->position = (Rectangle){positions[i].x, positions[i].y, 50, 50};
     letterPosition->catched = false;
     letterPosition->letter = letters[i];
+    letterPosition->dragonSprite = dragonSprites[rand() % N_DRAGONS];
     gameState->lettersPositions = addElement(gameState->lettersPositions, letterPosition);
   }
 }
@@ -129,7 +131,7 @@ void drawLeftLetters() {
       sprintf(letter, "%c", letterPosition->letter);
       DrawTextEx(font, letter, (Vector2){letterPosition->position.x, letterPosition->position.y}, font.baseSize, 4, BLACK);
       Rectangle dragonPosition = {letterPosition->position.x, letterPosition->position.y - 20.0f, 32.0f, 32.0f};
-      drawSprite(dragonSprite, dragonPosition);
+      drawSprite(letterPosition->dragonSprite, dragonPosition);
     }
     iterator = iterator->next;
     i++;

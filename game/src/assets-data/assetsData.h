@@ -18,8 +18,10 @@ static NPatchInfo ribbonNPatchInfo = {
     15.0f,
     NPATCH_NINE_PATCH};
 
+static Sprite2D *dragonSprites[N_DRAGONS];
+
 Sprite2D *initializeMarker();
-Sprite2D *initializeDragon();
+Sprite2D *initializeDragon(int dragonIndex);
 
 void destroyAsset(Sprite2D *sprite);
 

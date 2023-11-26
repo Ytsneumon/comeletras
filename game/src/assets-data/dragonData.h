@@ -4,7 +4,16 @@
 #include "assetsData.h"
 #include "raylib.h"
 
-static char *dragonTextureResourcePath = "resources/ViridianDrakeIdleSide.png";
+#define N_DRAGONS 7
+static char *dragonTextureResourcePaths[N_DRAGONS] = {
+    "resources/ViridianDrakeIdleSide.png",
+    "resources/AquaDrakeIdleSide.png",
+    "resources/PygmyWyvernIdleSide.png",
+    "resources/MudWyvernIdleSide.png",
+    "resources/AdultRedDragonIdleSide.png",
+    "resources/MatureBrassDragonIdleSide.png",
+    "resources/PoisonDrakeIdleSide.png"};
+
 static Rectangle dragonFrame = {
     .x = 0.0f,
     .y = 0.0f,

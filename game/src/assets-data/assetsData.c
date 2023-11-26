@@ -1,5 +1,6 @@
 #include "assetsData.h"
 #include <stdlib.h>
+#include <time.h>
 
 Vector2 *generateMarkerPositions() {
   Vector2 *positions = malloc(sizeof(Vector2) * markerPositionsLength);
@@ -21,9 +22,9 @@ Sprite2D *initializeMarker() {
   return marker;
 }
 
-Sprite2D *initializeDragon() {
+Sprite2D *initializeDragon(int dragonIndex) {
   Sprite2D *dragon = createSprite2D(
-      dragonTextureResourcePath,
+      dragonTextureResourcePaths[dragonIndex],
       dragonFrame,
       generateMarkerPositions(),
       dragonPositionsLength,
