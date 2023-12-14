@@ -54,6 +54,7 @@ void initiliaze() {
   gameState.currentWordIndex = 0;
   gameState.lettersPositions = NULL;
   gameState.gameFinished = false;
+  gameState.language = ES;
   InitWindow(screenWidth, screenHeight, "Letter Catcher");
   InitAudioDevice();
   explosion = LoadSound("resources/explosion.wav");
@@ -80,8 +81,10 @@ void UpdateDrawFrame(void) {
   switch (gameState.scene) {
   case GAME:
     drawGameScene(gameState);
+    break;
   case MAIN_MENU:
     drawMainMenu(gameState);
+    break;
   }
 }
 
@@ -110,7 +113,14 @@ void initializeLettersPositions(GameState *gameState, Vector2 *positions, char *
 }
 
 void processInput() {
-  processInputForBounty(gameState.bounty);
+  switch (gameState.scene) {
+  case MAIN_MENU:
+    processInputForMainMenu();
+    break;
+  case GAME:
+    processInputForBounty(gameState.bounty);
+    break;
+  }
 
   // Konami codes
   if (IsKeyPressed(KEY_SPACE)) {
@@ -168,5 +178,14 @@ void nextWord() {
     initializeCurrentWord();
   } else {
     gameState.gameFinished = true;
+  }
+}
+
+void processInputForMainMenu() {
+  if (IsKeyDown(KEY_DOWN) && gameState.language == ES) {
+    gameState.language = DE;
+  }
+  if (IsKeyDown(KEY_UP) && gameState.language == DE) {
+    gameState.language = ES;
   }
 }

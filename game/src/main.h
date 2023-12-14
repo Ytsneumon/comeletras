@@ -37,5 +37,6 @@ Vector2 getInitialPoint();
 char *getCurrentWord();
 void initializeLettersPositions(GameState *gameState, Vector2 *positions, char *letters, int length);
 void nextWord();
+void processInputForMainMenu();
 
 #endif

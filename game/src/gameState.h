@@ -13,7 +13,8 @@ typedef struct GameState {
   int currentWordIndex;
   Bounty *bounty;
   bool gameFinished;
-  enum GameScene scene;
+  GameScene scene;
+  Language language;
 } GameState;
 
 #endif

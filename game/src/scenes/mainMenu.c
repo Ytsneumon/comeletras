@@ -1,5 +1,6 @@
 #include "mainMenu.h"
 #include "../main.h"
+#include "../types.h"
 #include "common.h"
 #include "raylib.h"
 
@@ -15,7 +16,7 @@ void drawTitle() {
   DrawTextEx(font, title, ribbonPosition, font.baseSize, 4, BLACK);
 }
 
-void drawLanguageSelection(Bounty *bounty) {
+void drawLanguageSelection(Bounty *bounty, Language language) {
   Vector2 ribbonDimensions = {250.0, 200.0};
   Vector2 ribbonPosition = {(GetScreenWidth() / 2) - (ribbonDimensions.x / 2), 150};
 
@@ -23,14 +24,20 @@ void drawLanguageSelection(Bounty *bounty) {
   float marginY = 10.0f;
   Rectangle ribbonDestiny = {round(ribbonPosition.x - marginX), ribbonPosition.y - marginY, ribbonDimensions.x + marginX * 2, ribbonDimensions.y + marginY * 2};
   DrawTextureNPatch(ribbonTexture, ribbonNPatchInfo, ribbonDestiny, (Vector2){0, 0}, 0.0f, WHITE);
-  bounty->bounds.x = ribbonPosition.x + 40;
-  bounty->bounds.y = ribbonPosition.y + 50;
-  drawBounty(bounty);
   Vector2 esFlagPosition = {ribbonPosition.x + 120, ribbonPosition.y + 20};
   DrawTexture(esFlag, esFlagPosition.x, esFlagPosition.y, WHITE);
   Vector2 deFlagPosition = {ribbonPosition.x + 120, ribbonPosition.y + 120};
   DrawTexture(deFlag, deFlagPosition.x, deFlagPosition.y, WHITE);
-  Rectangle markerDestiny = {esFlagPosition.x - 13, esFlagPosition.y - 10, 122, 86};
+  Rectangle markerDestiny;
+  bounty->bounds.x = ribbonPosition.x + 40;
+  if (language == ES) {
+    markerDestiny = (Rectangle){esFlagPosition.x - 13, esFlagPosition.y - 10, 122, 86};
+    bounty->bounds.y = esFlagPosition.y + 30;
+  } else {
+    markerDestiny = (Rectangle){deFlagPosition.x - 13, deFlagPosition.y - 10, 122, 86};
+    bounty->bounds.y = deFlagPosition.y + 30;
+  }
+  drawBounty(bounty);
   drawSpriteNPatch(markerSprite, markerDestiny, markerNPatchInfo);
 }
 
@@ -41,7 +48,7 @@ void drawMainMenu(GameState gameState) {
 
   drawBackground();
   drawTitle();
-  drawLanguageSelection(gameState.bounty);
+  drawLanguageSelection(gameState.bounty, gameState.language);
 
   EndDrawing();
 }
