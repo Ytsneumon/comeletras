@@ -3,6 +3,7 @@
 
 #include "bounty/bounty.h"
 #include "raylib.h"
+#include "types.h"
 #include "utils/linkedList.h"
 
 typedef struct GameState {
@@ -11,6 +12,8 @@ typedef struct GameState {
   int *wordIndexes;
   int currentWordIndex;
   Bounty *bounty;
+  bool gameFinished;
+  enum GameScene scene;
 } GameState;
 
 #endif

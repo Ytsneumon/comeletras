@@ -43,7 +43,6 @@ void drawSpriteNPatch(Sprite2D *sprite, Rectangle destiny, NPatchInfo nPatchInfo
   updateSequenceIndex(sprite);
   Vector2 currentPosition = sprite->framePositions[sprite->sequence[sprite->sequenceIndex]];
   Rectangle source = {currentPosition.x, currentPosition.y, sprite->frame.width, sprite->frame.height};
-
   DrawTextureNPatch(
       sprite->texture,
       (NPatchInfo){

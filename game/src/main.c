@@ -10,15 +10,20 @@ static const int letterHeight = 50;
 
 static GameState gameState;
 
-// Textures
-Texture2D ribbonTexture;
 Texture2D backgroundTexture;
-
+Texture2D ribbonTexture;
 Sprite2D *markerSprite;
+
+Sound explosion;
+Sound wordCompleted;
+Sound backgroundMusic;
 
 int main(void) {
   initiliaze();
   while (!WindowShouldClose()) {
+    if (!IsSoundPlaying(backgroundMusic)) {
+      PlaySound(backgroundMusic);
+    }
     processInput();
     interactions();
     UpdateDrawFrame();
@@ -32,19 +37,28 @@ int main(void) {
 
   UnloadTexture(ribbonTexture);
   UnloadTexture(backgroundTexture);
+  UnloadSound(explosion);
+  UnloadSound(wordCompleted);
+  UnloadSound(backgroundMusic);
 
+  CloseAudioDevice();
   CloseWindow();
 
   return 0;
 }
 
 void initiliaze() {
+  gameState.scene = GAME;
   gameState.currentWordIndex = 0;
   gameState.lettersPositions = NULL;
+  gameState.gameFinished = false;
   InitWindow(screenWidth, screenHeight, "Letter Catcher");
+  InitAudioDevice();
+  explosion = LoadSound("resources/explosion.wav");
+  wordCompleted = LoadSound("resources/success.mp3");
+  backgroundMusic = LoadSound("resources/ninjago_background_music.mp3");
+  SetSoundVolume(backgroundMusic, 0.5f);
   SetTargetFPS(60);
-  initializeFont();
-  initializeWords(&gameState);
   gameState.bounty = createBounty(getInitialPoint());
   ribbonTexture = LoadTexture("resources/ribbons.png");
   backgroundTexture = LoadTexture("resources/clouds_background.png");
@@ -52,21 +66,30 @@ void initiliaze() {
   for (int i = 0; i < N_DRAGONS; i++) {
     dragonSprites[i] = initializeDragon(i);
   }
+  initializeFont();
+  initializeWords(&gameState);
   initializeCurrentWord();
+  initializeCutScene();
 }
 
 void UpdateDrawFrame(void) {
-  BeginDrawing();
+  switch (gameState.scene) {
+  case GAME:
+    drawGameScene(gameState);
+  }
+  /* BeginDrawing();
 
   ClearBackground(RAYWHITE);
 
-  // drawGrid();
-  drawBackground();
-  drawCurrentWord();
-  drawLeftLetters();
-  drawBounty(gameState.bounty);
-
-  EndDrawing();
+  if (gameState.gameFinished) {
+    drawCutScene();
+  } else {
+    drawBackground();
+    drawCurrentWord();
+    drawLeftLetters();
+    drawBounty(gameState.bounty);
+  }
+  EndDrawing(); */
 }
 
 void initializeCurrentWord() {
@@ -93,58 +116,12 @@ void initializeLettersPositions(GameState *gameState, Vector2 *positions, char *
   }
 }
 
-void drawCurrentWord() {
-  const char *currentWord = getCurrentWord();
-  Vector2 wordDimensions = MeasureTextEx(font, currentWord, font.baseSize, 4);
-  Vector2 ribbonPosition = {(GetScreenWidth() / 2) - (wordDimensions.x / 2), 30};
-
-  float marginX = 15.0f;
-  float marginY = 10.0f;
-  Rectangle ribbonDestiny = {round(ribbonPosition.x - marginX), ribbonPosition.y - marginY, wordDimensions.x + marginX * 2, wordDimensions.y + marginY * 2};
-  DrawTextureNPatch(ribbonTexture, ribbonNPatchInfo, ribbonDestiny, (Vector2){0, 0}, 0.0f, WHITE);
-
-  DrawTextEx(font, currentWord, ribbonPosition, font.baseSize, 4, BLACK);
-
-  char letter[2] = "#i";
-  sprintf(letter, "%c", currentWord[gameState.currentLetterIndex]);
-  char *alreadyCatchedLetters = malloc(sizeof(char) * (gameState.currentLetterIndex + 1));
-  strncpy(alreadyCatchedLetters, currentWord, gameState.currentLetterIndex);
-  alreadyCatchedLetters[gameState.currentLetterIndex] = '\0';
-
-  Vector2 letterDimensions = MeasureTextEx(font, letter, font.baseSize, 4);
-  Vector2 alreadyCatchedLettersDimension = MeasureTextEx(font, alreadyCatchedLetters, font.baseSize, 4);
-  marginX = 8.0f;
-  Rectangle markerDestiny = {ribbonPosition.x + alreadyCatchedLettersDimension.x - marginX + 4, ribbonPosition.y, letterDimensions.x + marginX * 2, letterDimensions.y};
-  drawSpriteNPatch(markerSprite, markerDestiny, markerNPatchInfo);
-
-  free(alreadyCatchedLetters);
-}
-
-void drawLeftLetters() {
-  int currentWordLength = strlen(getCurrentWord());
-  ListNode *iterator = gameState.lettersPositions;
-  int i = 0;
-  while (iterator != NULL) {
-    LetterPosition *letterPosition = (LetterPosition *)iterator->val;
-    if (letterPosition != NULL) {
-      char letter[2] = "#i";
-      sprintf(letter, "%c", letterPosition->letter);
-      DrawTextEx(font, letter, (Vector2){letterPosition->position.x, letterPosition->position.y}, font.baseSize, 4, BLACK);
-      Rectangle dragonPosition = {letterPosition->position.x, letterPosition->position.y - 20.0f, 32.0f, 32.0f};
-      drawSprite(letterPosition->dragonSprite, dragonPosition);
-    }
-    iterator = iterator->next;
-    i++;
-  }
-}
-
 void processInput() {
   processInputForBounty(gameState.bounty);
 
   // Konami codes
   if (IsKeyPressed(KEY_SPACE)) {
-    gameState.currentWordIndex++;
-    initializeCurrentWord();
+    nextWord();
   }
 }
 
@@ -160,6 +137,7 @@ void interactions() {
     if (letterPosition->letter == currentWord[gameState.currentLetterIndex] &&
         CheckCollisionRecs(bountyHitbox, letterPosition->position) &&
         !letterPosition->catched) {
+      PlaySound(explosion);
       gameState.lettersPositions = removeElementAt(gameState.lettersPositions, i);
       gameState.currentLetterIndex = (gameState.currentLetterIndex + 1) % currentWordLength;
       catched = true;
@@ -169,8 +147,8 @@ void interactions() {
     iterator = iterator->next;
   }
   if (catched && gameState.currentLetterIndex == 0) {
-    gameState.currentWordIndex++;
-    initializeCurrentWord();
+    PlaySound(wordCompleted);
+    nextWord();
   }
 }
 
@@ -187,10 +165,15 @@ char *getCurrentWord() {
   return words[gameState.wordIndexes[gameState.currentWordIndex]];
 }
 
-void drawBackground() {
-  DrawTexture(backgroundTexture, 0, 0, WHITE);
-}
-
 Vector2 getInitialPoint() {
   return (Vector2){GetScreenWidth() / 2, (GetScreenHeight() - headerHeight) / 2};
+}
+
+void nextWord() {
+  if (gameState.currentWordIndex < NUMBER_OF_WORDS - 1) {
+    gameState.currentWordIndex++;
+    initializeCurrentWord();
+  } else {
+    gameState.gameFinished = true;
+  }
 }

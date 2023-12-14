@@ -11,4 +11,9 @@ typedef struct LetterPosition {
   Sprite2D *dragonSprite;
 } LetterPosition;
 
+enum GameScene {
+  MAIN_MENU,
+  GAME,
+};
+
 #endif

@@ -19,6 +19,8 @@ Bounty *createBounty(Vector2 initialPosition) {
   bounty->horizontalSpeed = 0.0f;
   bounty->verticalSpeed = 0.0f;
   bounty->rotation = 0.0f;
+  bounty->state = IDLE;
+  bounty->idleAnimationDeltaIndex = 0;
   return bounty;
 }
 
@@ -31,12 +33,20 @@ void destroyBounty(Bounty *bounty) {
 }
 
 void drawBounty(Bounty *bounty) {
+  clock_t now = clock();
+  double elapsedTime = ((double)(now - bounty->lastRender)) / CLOCKS_PER_SEC;
+  if (elapsedTime > 0.1) {
+    bounty->lastRender = now;
+    bounty->idleAnimationDeltaIndex = (bounty->idleAnimationDeltaIndex + 1) % idleAnimationDeltasLength;
+  }
   Rectangle source = {0, 0, -bounty->horizontalDirection * bounty->texture.width, bounty->texture.height};
-  Rectangle destiny = {bounty->bounds.x, bounty->bounds.y, bounty->bounds.width, bounty->bounds.height};
+  int deltaY = 0;
+  if (bounty->state == IDLE) {
+    deltaY = idleAnimationDeltas[bounty->idleAnimationDeltaIndex];
+  }
+  Rectangle destiny = {bounty->bounds.x, bounty->bounds.y + deltaY, bounty->bounds.width, bounty->bounds.height};
   Vector2 origin = {bounty->bounds.width / 2, bounty->bounds.height / 2};
   DrawTexturePro(bounty->texture, source, destiny, origin, bounty->rotation, WHITE);
-  // Rectangle bountyHitbox = {bounty->x - bounty->width / 2, bounty->y - bounty->height / 2, bounty->width, bounty->height};
-  //  DrawRectangleLinesEx(bountyHitbox, 1.0f, RED);
 }
 
 void clampBountyPosition(Bounty *bounty) {
@@ -54,8 +64,8 @@ void clampBountyPosition(Bounty *bounty) {
 
 void processInputForBounty(Bounty *bounty) {
   clock_t now = clock();
-  double elapsedTime = ((double)(now - bounty->lastRender)) / CLOCKS_PER_SEC;
-  bounty->lastRender = now;
+  double elapsedTime = ((double)(now - bounty->lastMovementCalculation)) / CLOCKS_PER_SEC;
+  bounty->lastMovementCalculation = now;
   if (IsKeyDown(KEY_RIGHT)) {
     bounty->horizontalSpeed = Clamp(bounty->horizontalSpeed + bountyAcceleration * elapsedTime, -bountyMaxSpeed, bountyMaxSpeed);
     bounty->horizontalDirection = 1;
@@ -99,4 +109,9 @@ void processInputForBounty(Bounty *bounty) {
   }
 
   clampBountyPosition(bounty);
+  if (bounty->horizontalSpeed > 0.0f || bounty->verticalSpeed > 0.0f) {
+    bounty->state = IN_MOVEMENT;
+  } else {
+    bounty->state = IDLE;
+  }
 }
