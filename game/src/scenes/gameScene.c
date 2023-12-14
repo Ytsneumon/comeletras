@@ -1,12 +1,7 @@
 #include "gameScene.h"
-#include "../font.h"
-#include "../gameState.h"
 #include "../main.h"
+#include "common.h"
 #include "raylib.h"
-
-void drawBackground() {
-  DrawTexture(backgroundTexture, 0, 0, WHITE);
-}
 
 void drawCurrentWord(GameState gameState) {
   const char *currentWord = getCurrentWord();

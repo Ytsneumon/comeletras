@@ -9,6 +9,7 @@
 #include "raylib.h"
 #include "raymath.h"
 #include "scenes/gameScene.h"
+#include "scenes/mainMenu.h"
 #include "sprite/sprite.h"
 #include "types.h"
 #include "utils/commonUtils.h"
@@ -22,6 +23,8 @@
 
 extern Texture2D backgroundTexture;
 extern Texture2D ribbonTexture;
+extern Texture2D esFlag;
+extern Texture2D deFlag;
 extern Sprite2D *markerSprite;
 
 void UpdateDrawFrame(void);

@@ -13,6 +13,8 @@
     "string.h": "c",
     "cutscene.h": "c",
     "bounty.h": "c",
-    "gamescene.h": "c"
+    "gamescene.h": "c",
+    "font.h": "c",
+    "raylib.h": "c"
   }
 }

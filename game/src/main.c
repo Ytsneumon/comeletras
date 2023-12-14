@@ -12,6 +12,8 @@ static GameState gameState;
 
 Texture2D backgroundTexture;
 Texture2D ribbonTexture;
+Texture2D esFlag;
+Texture2D deFlag;
 Sprite2D *markerSprite;
 
 Sound explosion;
@@ -48,7 +50,7 @@ int main(void) {
 }
 
 void initiliaze() {
-  gameState.scene = GAME;
+  gameState.scene = MAIN_MENU;
   gameState.currentWordIndex = 0;
   gameState.lettersPositions = NULL;
   gameState.gameFinished = false;
@@ -62,6 +64,8 @@ void initiliaze() {
   gameState.bounty = createBounty(getInitialPoint());
   ribbonTexture = LoadTexture("resources/ribbons.png");
   backgroundTexture = LoadTexture("resources/clouds_background.png");
+  esFlag = LoadTexture("resources/es_flag.png");
+  deFlag = LoadTexture("resources/de_flag.png");
   markerSprite = initializeMarker();
   for (int i = 0; i < N_DRAGONS; i++) {
     dragonSprites[i] = initializeDragon(i);
@@ -76,20 +80,9 @@ void UpdateDrawFrame(void) {
   switch (gameState.scene) {
   case GAME:
     drawGameScene(gameState);
+  case MAIN_MENU:
+    drawMainMenu(gameState);
   }
-  /* BeginDrawing();
-
-  ClearBackground(RAYWHITE);
-
-  if (gameState.gameFinished) {
-    drawCutScene();
-  } else {
-    drawBackground();
-    drawCurrentWord();
-    drawLeftLetters();
-    drawBounty(gameState.bounty);
-  }
-  EndDrawing(); */
 }
 
 void initializeCurrentWord() {
