@@ -14,6 +14,7 @@ typedef struct LetterPosition {
 typedef enum {
   MAIN_MENU,
   GAME,
+  CUT_SCENE,
 } GameScene;
 
 typedef enum {

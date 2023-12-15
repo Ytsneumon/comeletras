@@ -4,7 +4,7 @@
 #include "gameState.h"
 
 static const int NUMBER_OF_WORDS = 14;
-static char *words[] = {
+static char *esWords[] = {
     "NINJAGO",
     "LLOYD",
     "KAI",
@@ -19,6 +19,21 @@ static char *words[] = {
     "PELICULA",
     "ABUNOCHI",
     "TORTITAS"};
+static char *deWords[] = {
+    "NINJAGO",
+    "LLOYD",
+    "KAI",
+    "FAHRRAD",
+    "LEGO",
+    "POKEMON",
+    "SPIELEN",
+    "BRUDER",
+    "MAUS",
+    "JOEL",
+    "FREITAG",
+    "SPIELPLATZ",
+    "EISENBAHN",
+    "HAND"};
 
 void initializeWords(GameState *gameState);
 

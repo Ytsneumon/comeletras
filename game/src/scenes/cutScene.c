@@ -10,6 +10,10 @@ void initializeCutScene() {
 }
 
 void drawCutScene() {
+  BeginDrawing();
+
+  ClearBackground(WHITE);
+
   clock_t now = clock();
   double elapsedTime = ((double)(now - lastVideoRender)) / CLOCKS_PER_SEC;
   DrawTexturePro(cutscene[framecount], (Rectangle){0, 0, 326, 182}, (Rectangle){0, 143, 900, 502}, (Vector2){0.0f, 0.0f}, 0.0f, WHITE);
@@ -20,4 +24,6 @@ void drawCutScene() {
   if (framecount == 88) {
     framecount = 0;
   }
+
+  EndDrawing();
 }

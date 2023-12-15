@@ -12,7 +12,6 @@ typedef struct GameState {
   int *wordIndexes;
   int currentWordIndex;
   Bounty *bounty;
-  bool gameFinished;
   GameScene scene;
   Language language;
 } GameState;

@@ -3,11 +3,11 @@
 
 #include "assets-data/assetsData.h"
 #include "bounty/bounty.h"
-#include "cutScene/cutScene.h"
 #include "font.h"
 #include "gameState.h"
 #include "raylib.h"
 #include "raymath.h"
+#include "scenes/cutScene.h"
 #include "scenes/gameScene.h"
 #include "scenes/mainMenu.h"
 #include "sprite/sprite.h"

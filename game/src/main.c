@@ -19,6 +19,7 @@ Sprite2D *markerSprite;
 Sound explosion;
 Sound wordCompleted;
 Sound backgroundMusic;
+Sound sword;
 
 int main(void) {
   initiliaze();
@@ -53,13 +54,13 @@ void initiliaze() {
   gameState.scene = MAIN_MENU;
   gameState.currentWordIndex = 0;
   gameState.lettersPositions = NULL;
-  gameState.gameFinished = false;
   gameState.language = ES;
   InitWindow(screenWidth, screenHeight, "Letter Catcher");
   InitAudioDevice();
   explosion = LoadSound("resources/explosion.wav");
   wordCompleted = LoadSound("resources/success.mp3");
   backgroundMusic = LoadSound("resources/ninjago_background_music.mp3");
+  sword = LoadSound("resources/sword.mp3");
   SetSoundVolume(backgroundMusic, 0.5f);
   SetTargetFPS(60);
   gameState.bounty = createBounty(getInitialPoint());
@@ -73,7 +74,6 @@ void initiliaze() {
   }
   initializeFont();
   initializeWords(&gameState);
-  initializeCurrentWord();
   initializeCutScene();
 }
 
@@ -84,6 +84,9 @@ void UpdateDrawFrame(void) {
     break;
   case MAIN_MENU:
     drawMainMenu(gameState);
+    break;
+  case CUT_SCENE:
+    drawCutScene();
     break;
   }
 }
@@ -119,12 +122,11 @@ void processInput() {
     break;
   case GAME:
     processInputForBounty(gameState.bounty);
+    // Konami codes
+    if (IsKeyPressed(KEY_SPACE)) {
+      nextWord();
+    }
     break;
-  }
-
-  // Konami codes
-  if (IsKeyPressed(KEY_SPACE)) {
-    nextWord();
   }
 }
 
@@ -165,7 +167,11 @@ void printLettersPositions() {
 }
 
 char *getCurrentWord() {
-  return words[gameState.wordIndexes[gameState.currentWordIndex]];
+  if (gameState.language == ES) {
+    return esWords[gameState.wordIndexes[gameState.currentWordIndex]];
+  } else {
+    return deWords[gameState.wordIndexes[gameState.currentWordIndex]];
+  }
 }
 
 Vector2 getInitialPoint() {
@@ -177,15 +183,25 @@ void nextWord() {
     gameState.currentWordIndex++;
     initializeCurrentWord();
   } else {
-    gameState.gameFinished = true;
+    gameState.scene = CUT_SCENE;
   }
 }
 
 void processInputForMainMenu() {
   if (IsKeyDown(KEY_DOWN) && gameState.language == ES) {
+    PlaySound(sword);
     gameState.language = DE;
   }
   if (IsKeyDown(KEY_UP) && gameState.language == DE) {
+    PlaySound(sword);
     gameState.language = ES;
+  }
+  if (IsKeyDown(KEY_ENTER)) {
+    gameState.scene = GAME;
+    PlaySound(explosion);
+    initializeCurrentWord();
+    Vector2 bountyInitialPosition = getInitialPoint();
+    gameState.bounty->bounds.x = bountyInitialPosition.x;
+    gameState.bounty->bounds.y = bountyInitialPosition.y;
   }
 }
