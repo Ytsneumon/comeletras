@@ -32,3 +32,7 @@ project (workspaceName)
 	link_raylib()
 	
 	-- To link to a lib use link_to("LIB_FOLDER_NAME")
+
+	postbuildcommands {
+		"cp -R ../game/resources %{cfg.targetdir}"
+	}
